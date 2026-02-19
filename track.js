@@ -69,6 +69,6 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('17track API error:', error);
-    return res.status(500).json({ error: '查询失败，请稍后重试' });
+    return res.status(500).json({ error: '未找到该单号信息' });
   }
 }
