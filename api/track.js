@@ -32,13 +32,36 @@ export default async function handler(req, res) {
 
     const trackData = await trackRes.json();
     
-    // 把17TRACK返回的所有信息都返回给前端，方便排查
+    if (trackData.code !== 200 || !trackData.data || trackData.data.length === 0) {
+      // 返回详细错误信息，方便排查
+      return res.status(404).json({ 
+        customNumber: customNumber,
+        status: '查询失败',
+        tracks: [],
+        error: '未查询到信息',
+        detail: trackData // 这里包含17TRACK返回的所有信息
+      });
+    }
+
+    const trackInfo = trackData.data[0];
+    const tracks = (trackInfo.trackInfo || []).map(item => ({
+      time: item.time,
+      desc: item.message
+    }));
+
     return res.status(200).json({
-      message: '17TRACK返回详情',
-      trackData: trackData
+      customNumber: customNumber,
+      status: trackInfo.status || '查询中',
+      tracks: tracks
     });
 
   } catch (error) {
-    return res.status(500).json({ error: '查询接口异常', detail: error.message });
+    return res.status(500).json({ 
+      customNumber: customNumber,
+      status: '接口异常',
+      tracks: [],
+      error: '查询接口异常',
+      detail: error.message 
+    });
   }
 }
