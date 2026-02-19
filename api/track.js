@@ -19,22 +19,7 @@ export default async function handler(req, res) {
   const API_KEY = '3FCB20328F52E3B2FE6D492DAAED20B3';
 
   try {
-    const registerRes = await fetch('https://api.17track.net/track/v2/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Api-Key': API_KEY
-      },
-      body: JSON.stringify({
-        data: [{ number: customNumber }]
-      })
-    });
-
-    const registerData = await registerRes.json();
-    if (registerData.code !== 200) {
-      return res.status(500).json({ error: '注册单号失败' });
-    }
-
+    // 直接查询，跳过注册步骤
     const trackRes = await fetch('https://api.17track.net/track/v2/gettrackinfo', {
       method: 'POST',
       headers: {
@@ -47,8 +32,9 @@ export default async function handler(req, res) {
     });
 
     const trackData = await trackRes.json();
+    
     if (trackData.code !== 200 || !trackData.data || trackData.data.length === 0) {
-      return res.status(404).json({ error: '未查询到信息' });
+      return res.status(404).json({ error: '未查询到信息', detail: trackData });
     }
 
     const trackInfo = trackData.data[0];
@@ -64,6 +50,6 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    return res.status(500).json({ error: '查询接口异常' });
+    return res.status(500).json({ error: '查询接口异常', detail: error.message });
   }
 }
