@@ -19,7 +19,6 @@ export default async function handler(req, res) {
   const API_KEY = '3FCB20328F52E3B2FE6D492DAAED20B3';
 
   try {
-    // 直接查询，跳过注册步骤
     const trackRes = await fetch('https://api.17track.net/track/v2/gettrackinfo', {
       method: 'POST',
       headers: {
@@ -33,20 +32,10 @@ export default async function handler(req, res) {
 
     const trackData = await trackRes.json();
     
-    if (trackData.code !== 200 || !trackData.data || trackData.data.length === 0) {
-      return res.status(404).json({ error: '未查询到信息', detail: trackData });
-    }
-
-    const trackInfo = trackData.data[0];
-    const tracks = (trackInfo.trackInfo || []).map(item => ({
-      time: item.time,
-      desc: item.message
-    }));
-
+    // 把17TRACK返回的所有信息都返回给前端，方便排查
     return res.status(200).json({
-      customNumber,
-      status: trackInfo.status || '查询中',
-      tracks
+      message: '17TRACK返回详情',
+      trackData: trackData
     });
 
   } catch (error) {
